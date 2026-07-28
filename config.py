@@ -14,6 +14,7 @@ class Config:
     timer_hours: int = 0
     timer_minutes: int = 0
     timer_seconds: int = 0
+    theme: str = "light"
 
 
 def load_config() -> Config:
@@ -55,6 +56,10 @@ def load_config() -> Config:
         if not isinstance(timer_seconds, int) or timer_seconds < 0 or timer_seconds > 59:
             timer_seconds = 0
 
+        theme = str(data.get("theme", "light"))
+        if theme not in ("light", "dark", "blue", "green", "purple", "orange", "teal", "red"):
+            theme = "light"
+
         return Config(
             trigger_key=trigger_key,
             stop_key=stop_key,
@@ -62,6 +67,7 @@ def load_config() -> Config:
             timer_hours=timer_hours,
             timer_minutes=timer_minutes,
             timer_seconds=timer_seconds,
+            theme=theme,
         )
 
     except Exception:

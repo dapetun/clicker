@@ -4,7 +4,6 @@ import threading
 import time
 
 import keyboard
-from PySide6.QtCore import QObject, Signal
 
 from config import Config
 
@@ -34,15 +33,12 @@ def _send_letter(letter: str) -> None:
     keybd_event(vk, scan, KEYEVENTF_KEYUP, 0)
 
 
-class MacroEngine(QObject):
-    started = Signal()
-    stopped = Signal()
-
-    def __init__(self, config: Config):
-        super().__init__()
-
+class MacroEngine:
+    def __init__(self, config: Config, on_started=None, on_stopped=None):
         self._config_lock = threading.Lock()
         self._config = config
+        self._on_started = on_started
+        self._on_stopped = on_stopped
 
         self._running = False
         self._lock = threading.Lock()
@@ -110,7 +106,8 @@ class MacroEngine(QObject):
         with self._config_lock:
             alphabet = self._config.alphabet
 
-        self.started.emit()
+        if self._on_started:
+            self._on_started()
 
         threading.Thread(
             target=self._send_loop,
@@ -124,7 +121,8 @@ class MacroEngine(QObject):
                 return
             self._running = False
 
-        self.stopped.emit()
+        if self._on_stopped:
+            self._on_stopped()
 
     def _send_loop(self, alphabet: str) -> None:
         filtered = self._filtered_alphabet(alphabet)
@@ -133,10 +131,12 @@ class MacroEngine(QObject):
             if keyboard.is_pressed(stop_key):
                 with self._lock:
                     self._running = False
-                break
+                if self._on_stopped:
+                    self._on_stopped()
+                return
             for letter in filtered:
                 if not self.running:
-                    break
+                    return
                 _send_letter(letter)
             time.sleep(0.005)
 

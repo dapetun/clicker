@@ -1,87 +1,133 @@
-GLOBAL_STYLE = """QMainWindow {
-    background-color: #f5f5f5;
+WINDOW_WIDTH = 400
+WINDOW_HEIGHT = 450
+
+THEMES = {
+    "light": {
+        "name": "Светлая",
+        "title_bar": "#e8e8e8",
+        "title_bar_text": "#2c3e50",
+        "bg": "#f5f5f5",
+        "card_bg": "#ffffff",
+        "card_border": "#eeeeee",
+        "text": "#333333",
+        "text_title": "#2c3e50",
+        "text_subtitle": "#555555",
+        "accent": "#4a90e2",
+        "accent_hover": "#357abd",
+        "input_bg": "#ffffff",
+        "input_border": "#dddddd",
+    },
+    "dark": {
+        "name": "Тёмная",
+        "title_bar": "#2d2d2d",
+        "title_bar_text": "#d4d4d4",
+        "bg": "#1e1e1e",
+        "card_bg": "#2d2d2d",
+        "card_border": "#3c3c3c",
+        "text": "#d4d4d4",
+        "text_title": "#ffffff",
+        "text_subtitle": "#9e9e9e",
+        "accent": "#0e639c",
+        "accent_hover": "#1177bb",
+        "input_bg": "#3c3c3c",
+        "input_border": "#505050",
+    },
+    "blue": {
+        "name": "Синяя",
+        "title_bar": "#bbdefb",
+        "title_bar_text": "#0d47a1",
+        "bg": "#e8f0fe",
+        "card_bg": "#ffffff",
+        "card_border": "#c5d9f0",
+        "text": "#1a3a5c",
+        "text_title": "#0d47a1",
+        "text_subtitle": "#5c7fa8",
+        "accent": "#1565c0",
+        "accent_hover": "#0d47a1",
+        "input_bg": "#ffffff",
+        "input_border": "#b3cde0",
+    },
+    "green": {
+        "name": "Зелёная",
+        "title_bar": "#c8e6c9",
+        "title_bar_text": "#1b5e20",
+        "bg": "#e8f5e9",
+        "card_bg": "#ffffff",
+        "card_border": "#c8e6c9",
+        "text": "#1b5e20",
+        "text_title": "#2e7d32",
+        "text_subtitle": "#66bb6a",
+        "accent": "#388e3c",
+        "accent_hover": "#2e7d32",
+        "input_bg": "#ffffff",
+        "input_border": "#a5d6a7",
+    },
+    "purple": {
+        "name": "Фиолетовая",
+        "title_bar": "#e1bee7",
+        "title_bar_text": "#4a148c",
+        "bg": "#f3e5f5",
+        "card_bg": "#ffffff",
+        "card_border": "#e1bee7",
+        "text": "#4a148c",
+        "text_title": "#6a1b9a",
+        "text_subtitle": "#9c27b0",
+        "accent": "#7b1fa2",
+        "accent_hover": "#6a1b9a",
+        "input_bg": "#ffffff",
+        "input_border": "#ce93d8",
+    },
+    "orange": {
+        "name": "Оранжевая",
+        "title_bar": "#ffe0b2",
+        "title_bar_text": "#e65100",
+        "bg": "#fff3e0",
+        "card_bg": "#ffffff",
+        "card_border": "#ffcc80",
+        "text": "#bf360c",
+        "text_title": "#e65100",
+        "text_subtitle": "#fb8c00",
+        "accent": "#f57c00",
+        "accent_hover": "#e65100",
+        "input_bg": "#ffffff",
+        "input_border": "#ffcc80",
+    },
+    "teal": {
+        "name": "Бирюзовая",
+        "title_bar": "#b2dfdb",
+        "title_bar_text": "#004d40",
+        "bg": "#e0f2f1",
+        "card_bg": "#ffffff",
+        "card_border": "#80cbc4",
+        "text": "#004d40",
+        "text_title": "#00695c",
+        "text_subtitle": "#26a69a",
+        "accent": "#00897b",
+        "accent_hover": "#00695c",
+        "input_bg": "#ffffff",
+        "input_border": "#80cbc4",
+    },
+    "red": {
+        "name": "Красная",
+        "title_bar": "#ffcdd2",
+        "title_bar_text": "#b71c1c",
+        "bg": "#ffebee",
+        "card_bg": "#ffffff",
+        "card_border": "#ef9a9a",
+        "text": "#b71c1c",
+        "text_title": "#c62828",
+        "text_subtitle": "#ef5350",
+        "accent": "#e53935",
+        "accent_hover": "#c62828",
+        "input_bg": "#ffffff",
+        "input_border": "#ef9a9a",
+    },
 }
 
-QWidget {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    font-size: 14px;
-    color: #333333;
-}
+THEME_LIST = ["light", "dark", "blue", "green", "purple", "orange", "teal", "red"]
 
-QLabel {
-    background-color: transparent;
-    background: transparent;
-}
 
-QPushButton {
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-}
-
-QPushButton:hover {
-    background-color: #357abd;
-}
-
-QPushButton#PrimaryButton {
-    background-color: #4a90e2;
-    color: white;
-    font-weight: bold;
-}
-
-QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox {
-    border: 1px solid #dddddd;
-    border-radius: 3px;
-    padding: 4px;
-    background-color: white;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-}
-
-QSpinBox::up-button, QSpinBox::down-button {
-    width: 0;
-    height: 0;
-}
-
-QLabel#Title {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 17px;
-    font-weight: bold;
-    color: #2c3e50;
-    background: transparent;
-}
-
-QLabel#Subtitle {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 14px;
-    color: #555555;
-    background: transparent;
-}
-
-QLabel#Secondary {
-    font-family: 'Segoe UI', sans-serif;
-    color: #555555;
-    font-size: 12px;
-    background: transparent;
-}
-
-QLabel#Body {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-    color: #333333;
-    background: transparent;
-}
-
-QFrame#Card {
-    background-color: white;
-    border-radius: 8px;
-    border: 1px solid #eeeeee;
-}
-"""
-
-WINDOW_WIDTH = 580
-WINDOW_HEIGHT = 400
+def get_theme_colors(theme_key: str) -> dict:
+    if theme_key not in THEMES:
+        theme_key = "light"
+    return THEMES[theme_key]
