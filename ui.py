@@ -101,6 +101,136 @@ class Spinbox(ctk.CTkFrame):
         self.entry.configure(state=state)
 
 
+class KeyboardPicker(ctk.CTkToplevel):
+    LAYOUT = [
+        ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'"],
+        ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/"],
+        ["space"],
+    ]
+
+    def __init__(self, parent, config, on_apply_theme):
+        super().__init__(parent)
+        self.config = config
+        self._on_apply_theme = on_apply_theme
+        self.title("Выбор клавиш")
+        self.geometry("540x340")
+        self.minsize(480, 300)
+        self.resizable(True, True)
+        self.transient(parent)
+        self.grab_set()
+
+        self.selected = set(config.alphabet)
+        self._key_buttons = {}
+
+        self._build_ui()
+        self._apply_theme(config.theme)
+
+    def _build_ui(self):
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
+        self.main_frame.pack(fill="both", expand=True, padx=12, pady=12)
+
+        top_row = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        top_row.pack(fill="x", pady=(0, 8))
+
+        self.title_label = ctk.CTkLabel(top_row, text="Выберите клавиши для повтора",
+                                         font=ctk.CTkFont(size=14, weight="bold"))
+        self.title_label.pack(side="left")
+
+        self.select_all_btn = ctk.CTkButton(top_row, text="Выбрать все",
+                                              width=0, height=26, corner_radius=4,
+                                              command=self._select_all,
+                                              font=ctk.CTkFont(size=12))
+        self.select_all_btn.pack(side="right", padx=(8, 0))
+
+        self.deselect_all_btn = ctk.CTkButton(top_row, text="Снять все",
+                                                width=0, height=26, corner_radius=4,
+                                                command=self._deselect_all,
+                                                font=ctk.CTkFont(size=12))
+        self.deselect_all_btn.pack(side="right", padx=(8, 0))
+
+        self.keyboard_frame = ctk.CTkFrame(self.main_frame, corner_radius=8)
+        self.keyboard_frame.pack(fill="both", expand=True)
+
+        for row_idx, row in enumerate(self.LAYOUT):
+            row_frame = ctk.CTkFrame(self.keyboard_frame, fg_color="transparent")
+            row_frame.pack(fill="x", padx=8, pady=2)
+
+            for key in row:
+                if key == "space":
+                    w = 220
+                    display = "Пробел"
+                elif len(key) > 1:
+                    w = 42
+                    display = key.upper()
+                else:
+                    w = 36
+                    display = key.upper() if key.isalpha() else key
+
+                is_selected = key in self.selected
+
+                btn = ctk.CTkButton(
+                    row_frame, text=display, width=w, height=30,
+                    corner_radius=4,
+                    font=ctk.CTkFont(size=11),
+                    command=lambda k=key: self._toggle_key(k),
+                )
+                btn.pack(side="left", padx=1, pady=1)
+                self._key_buttons[key] = btn
+
+        self._update_button_styles()
+
+    def _toggle_key(self, key):
+        if key in self.selected:
+            self.selected.discard(key)
+        else:
+            self.selected.add(key)
+        self._update_button_styles()
+        self._save()
+
+    def _select_all(self):
+        for row in self.LAYOUT:
+            for key in row:
+                self.selected.add(key)
+        self._update_button_styles()
+        self._save()
+
+    def _deselect_all(self):
+        self.selected.clear()
+        self._update_button_styles()
+        self._save()
+
+    def _update_button_styles(self):
+        colors = get_theme_colors(self.config.theme)
+        for key, btn in self._key_buttons.items():
+            if key in self.selected:
+                btn.configure(fg_color=colors["accent"], text_color="white",
+                              hover_color=colors["accent_hover"])
+            else:
+                btn.configure(fg_color=colors["input_bg"], text_color=colors["text"],
+                              hover_color=colors["card_border"],
+                              border_color=colors["input_border"], border_width=1)
+
+    def _save(self):
+        self.config.alphabet = "".join(sorted(self.selected))
+        save_config(self.config)
+
+    def _apply_theme(self, theme_key):
+        colors = get_theme_colors(theme_key)
+        self.configure(fg_color=colors["bg"])
+        self.main_frame.configure(fg_color=colors["bg"])
+        self.title_label.configure(text_color=colors["text_title"])
+        self.keyboard_frame.configure(fg_color=colors["card_bg"], border_color=colors["card_border"])
+        self.select_all_btn.configure(fg_color=colors["card_bg"], text_color=colors["text"],
+                                       hover_color=colors["card_border"],
+                                       border_color=colors["input_border"], border_width=1)
+        self.deselect_all_btn.configure(fg_color=colors["card_bg"], text_color=colors["text"],
+                                         hover_color=colors["card_border"],
+                                         border_color=colors["input_border"], border_width=1)
+        self._update_button_styles()
+
+
 class MainWindow(ctk.CTk):
     def __init__(self, config=None):
         super().__init__()
@@ -166,6 +296,7 @@ class MainWindow(ctk.CTk):
         self._build_header()
         self._build_hotkeys_card()
         self._build_timer_card()
+        self._build_keyboard_btn()
 
         spacer = ctk.CTkFrame(self.content, height=1, fg_color="transparent")
         spacer.pack(fill="x", pady=(8, 0))
@@ -244,6 +375,13 @@ class MainWindow(ctk.CTk):
                                      initial=self.config.timer_seconds,
                                      suffix="сек", callback=self._on_timer_changed)
         self.seconds_spin.grid(row=0, column=2, sticky="ew")
+
+    def _build_keyboard_btn(self):
+        self.keyboard_btn = ctk.CTkButton(self.content, text="Клавиатура", height=32,
+                                           corner_radius=6,
+                                           command=self._on_keyboard_open,
+                                           font=ctk.CTkFont(size=13))
+        self.keyboard_btn.pack(fill="x", pady=(0, 8))
 
     def _build_status(self):
         self.status_label = ctk.CTkLabel(self.content, text="\u25cf Остановлено",
@@ -432,6 +570,8 @@ class MainWindow(ctk.CTk):
                                   text_color="white")
         self.stop_btn.configure(fg_color=colors["card_bg"], border_color=colors["card_border"],
                                  text_color=colors["text"], hover_color=colors["card_border"])
+        self.keyboard_btn.configure(fg_color=colors["card_bg"], border_color=colors["card_border"],
+                                     text_color=colors["text"], hover_color=colors["card_border"])
 
         self.about_btn.configure(fg_color="transparent", text_color=colors["text_subtitle"],
                                  hover_color=colors["card_border"])
@@ -446,6 +586,9 @@ class MainWindow(ctk.CTk):
 
         hwnd = self.winfo_id()
         _apply_title_bar_color(hwnd, theme_key)
+
+    def _on_keyboard_open(self):
+        KeyboardPicker(self, self.config, self._apply_theme)
 
     def _on_close(self):
         self._countdown_active = False
